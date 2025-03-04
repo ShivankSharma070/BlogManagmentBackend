@@ -165,6 +165,31 @@ Request Body should contain a json with fields to update. For example
 | --------- | ------------------- |
 | id        | Unique id for blog |
 
+#### Comment (POST /blog/comment)
+```
+/blog/comment?id="blog-id"
+```
+
+| Parameter | Description         |
+| --------- | ------------------- |
+| id        | Unique id for blog |
+
+Request Body should contain a json with comments for a blog. For example 
+```json
+{
+"comment":"Nice Blog" 
+}
+```
+These comments can be a string or a array of strings
+
+#### Like Blog (GET /blog/like)
+```
+/blog/like?id="blog-id"
+```
+
+| Parameter | Description         |
+| --------- | ------------------- |
+| id        | Unique id for blog |
 
 ## Contributing
 

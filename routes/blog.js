@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const blogSchema = require("../models/blogs.js");
 
+// Creating model for currently logged in user 
 let blogs;
 router.use((req, res, next) => {
   blogs = require("mongoose").model(req.user.email, blogSchema);
@@ -58,13 +59,13 @@ router.post("/add", async (req, res) => {
   try {
     //Extract data from body
     const data = req.body;
-    if (data.like) {
+    if (data.like || data.comment) {
       delete data.comment;
       delete data.like;
     }
     const item = new blogs(data);
 
-    // check whether item is already present or not
+    // check whether blog is already present or not
     const itemAlreadyPresent = await blogs.findOne({
       title: { $regex: `^${data.title}$`, $options: "i" },
     });
@@ -76,21 +77,21 @@ router.post("/add", async (req, res) => {
       return;
     }
 
-    //Save new item
+    //Save new blog
     await item.save();
-    res.status(201).json({ success: true, message: "Item added", data: item });
+    res.status(201).json({ success: true, message: "blog added", data: item });
   } catch (error) {
     res.send({ success: true, error: error.name, message: error.message });
   }
 });
 
-// Update items
+// Update blog 
 router.put("/update", async (req, res) => {
   try {
-    // Id of item to be updated
+    // Id of blog to be updated
     let id = req.query.id;
     const data = req.body;
-    if (data.like) {
+    if (data.like || data.comment) {
       delete data.comment;
       delete data.like;
     }
@@ -125,10 +126,10 @@ router.put("/update", async (req, res) => {
   }
 });
 
-// Delete Item
+// Delete Blog 
 router.delete("/delete", async (req, res) => {
   try {
-    // Id of item to be deleted
+    // Id of blog to be deleted
     let id = req.query.id;
     // Check if id or sno is provided or not
     if (!id) {
@@ -136,10 +137,10 @@ router.delete("/delete", async (req, res) => {
       return;
     }
 
-    // Delete item
+    // Delete blog
     let deletedItem = await blogs.findByIdAndDelete(id);
 
-    // If no item was present for that id
+    // If no blog was present for that id
     if (!deletedItem) {
       res.status(400).json({
         success: false,
@@ -187,7 +188,7 @@ router.post("/comment", async (req, res) => {
       return;
     }
 
-        data.comment= typeof(data.comment)=="string"? [data.comment]: data.comment
+    data.comment= typeof(data.comment)=="string"? [data.comment]: data.comment
     itemFound.comment = [...itemFound.comment, ...data.comment]
     const oldData = await blogs.findByIdAndUpdate(id,itemFound)
 
@@ -198,7 +199,7 @@ router.post("/comment", async (req, res) => {
     if (error.name == "CastError") {
       error.message = "Invalid Id";
     }
-    res.send({ success: true, error: error.message });
+    res.status(500).send({ success: true, error: error.message });
   }
 });
 router.get("/like", async (req, res) => {
@@ -219,7 +220,7 @@ router.get("/like", async (req, res) => {
       return;
     }
 
-    // If no item is found for that particular id
+    // If no blog is found for that particular id
     res
       .status(400)
       .json({ success: false, message: "No blog can be found with that id." });
