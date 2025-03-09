@@ -24,7 +24,7 @@ router.get("/s", async (req, res) => {
     const id = String(req.query.id || "");
     let results;
 
-    // Priortize Id > Sno > Query
+    // Priortize Id > Query
     if (id) {
       results = await blogs.findById(id);
     } else {
